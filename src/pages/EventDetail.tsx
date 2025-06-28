@@ -1,25 +1,26 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Clock, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, TrendingUp, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { mockEvents } from '../data/mockData';
-import RiskBadge from '../components/UI/RiskBadge';
-import SignalBadge from '../components/UI/SignalBadge';
+import { mockData } from '../lib/api';
+import { ApiService } from '../lib/api';
+import { useNotifications } from '../contexts/NotificationContext';
 
-const EventDetail: React.FC = () => {
-  const { eventId } = useParams<{ eventId: string }>();
-  const event = mockEvents.find(e => e.id === eventId);
+export default function EventDetail() {
+  const { id } = useParams<{ id: string }>();
+  const { addNotification } = useNotifications();
+  const event = mockData.events.find(e => e.id === id);
 
   if (!event) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <AlertTriangle className="h-16 w-16 text-textSecondary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-textPrimary mb-2">Event Not Found</h2>
-          <p className="text-textSecondary mb-6">The requested event could not be found.</p>
+          <AlertTriangle className="h-16 w-16 text-text-secondary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-text-primary mb-2">Event Not Found</h2>
+          <p className="text-text-secondary mb-6">The requested event could not be found.</p>
           <Link
             to="/dashboard"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-accent hover:text-primary border border-accent hover:border-primary rounded-md transition-colors duration-200"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-primary hover:text-primary-dark border border-primary hover:border-primary-dark rounded-lg transition-colors duration-200"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
@@ -28,6 +29,23 @@ const EventDetail: React.FC = () => {
       </div>
     );
   }
+
+  const handleInvestigate = async () => {
+    try {
+      await ApiService.triggerInvestigation(event.id);
+      addNotification({
+        type: 'success',
+        title: 'Investigation Triggered',
+        message: 'Investigation workflow has been initiated.',
+      });
+    } catch (error) {
+      addNotification({
+        type: 'error',
+        title: 'Investigation Failed',
+        message: 'Unable to trigger investigation. Please try again.',
+      });
+    }
+  };
 
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
@@ -51,85 +69,124 @@ const EventDetail: React.FC = () => {
     }));
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center text-accent hover:text-primary mb-4 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Link>
-          
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-4 md:mb-0">
-              <h1 className="text-3xl md:text-4xl font-bold text-textPrimary mb-2">
-                {event.title}
-              </h1>
-              <div className="flex items-center space-x-4 text-textSecondary">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>{event.location.name}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatTimestamp(event.timestamp)}</span>
-                </div>
+    <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center text-primary hover:text-primary-dark mb-4 transition-colors duration-200"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Link>
+        
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 md:mb-0">
+            <h1 className="text-h1 font-bold text-text-primary mb-2">
+              {event.title}
+            </h1>
+            <div className="flex items-center space-x-4 text-text-secondary">
+              <div className="flex items-center space-x-1">
+                <MapPin className="w-4 h-4" />
+                <span>{event.location}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Clock className="w-4 h-4" />
+                <span>{formatTimestamp(event.created_at)}</span>
               </div>
             </div>
-            <RiskBadge level={event.riskLevel} size="lg" />
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <span className={`px-4 py-2 rounded-lg font-semibold uppercase tracking-wide ${
+              event.risk_level === 'high' ? 'bg-error text-white' :
+              event.risk_level === 'medium' ? 'bg-warning text-white' :
+              'bg-success text-white'
+            }`}>
+              {event.risk_level} Risk
+            </span>
+            
+            <button
+              onClick={handleInvestigate}
+              className="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Investigate
+            </button>
           </div>
         </div>
+      </div>
 
+      {/* Tabs */}
+      <div className="mb-8">
+        <div className="border-b border-border">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'overview', name: 'Overview' },
+              { id: 'graphs', name: 'Graphs' },
+              { id: 'forecast', name: 'Forecast' },
+              { id: 'actions', name: 'Actions' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                className="py-4 px-1 border-b-2 border-primary text-primary font-medium text-sm"
+              >
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Overview Tab Content */}
+      <div className="space-y-8">
         {/* Event Summary */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <TrendingUp className="w-6 h-6 text-accent" />
-              <h3 className="text-lg font-semibold text-textPrimary">Confidence Score</h3>
+              <TrendingUp className="w-6 h-6 text-primary" />
+              <h3 className="text-lg font-semibold text-text-primary">Confidence Score</h3>
             </div>
-            <div className="text-3xl font-bold text-textPrimary mb-2">
-              {Math.round(event.confidenceScore * 100)}%
+            <div className="text-3xl font-bold text-text-primary mb-2">
+              {Math.round(event.confidence_score * 100)}%
             </div>
-            <p className="text-textSecondary text-sm">
-              Based on {event.signalTypes.length} signal sources
+            <p className="text-text-secondary text-sm">
+              Based on {event.signal_types.length} signal sources
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <MapPin className="w-6 h-6 text-accent" />
-              <h3 className="text-lg font-semibold text-textPrimary">Location</h3>
+              <MapPin className="w-6 h-6 text-primary" />
+              <h3 className="text-lg font-semibold text-text-primary">Location</h3>
             </div>
-            <div className="text-lg font-semibold text-textPrimary mb-1">
-              {event.location.name}
+            <div className="text-lg font-semibold text-text-primary mb-1">
+              {event.location}
             </div>
-            <p className="text-textSecondary text-sm">
-              {event.location.coordinates[1].toFixed(4)}, {event.location.coordinates[0].toFixed(4)}
+            <p className="text-text-secondary text-sm">
+              {event.coordinates[1].toFixed(4)}, {event.coordinates[0].toFixed(4)}
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <Clock className="w-6 h-6 text-accent" />
-              <h3 className="text-lg font-semibold text-textPrimary">Detection Time</h3>
+              <Clock className="w-6 h-6 text-primary" />
+              <h3 className="text-lg font-semibold text-text-primary">Detection Time</h3>
             </div>
-            <div className="text-lg font-semibold text-textPrimary mb-1">
-              {formatTimestamp(event.timestamp)}
+            <div className="text-lg font-semibold text-text-primary mb-1">
+              {formatTimestamp(event.created_at)}
             </div>
-            <p className="text-textSecondary text-sm">
+            <p className="text-text-secondary text-sm">
               Local timezone
             </p>
           </div>
         </div>
 
         {/* Signal Analysis */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Signal Trends */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-semibold text-textPrimary mb-6">Signal Trends (24h)</h3>
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
+            <h3 className="text-xl font-semibold text-text-primary mb-6">Signal Trends (24h)</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -139,21 +196,21 @@ const EventDetail: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="wastewater" 
-                  stroke="#00BFA6" 
+                  stroke="#00C7B7" 
                   strokeWidth={2}
                   name="Wastewater"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="pharmacy" 
-                  stroke="#F5B041" 
+                  stroke="#F59E0B" 
                   strokeWidth={2}
                   name="Pharmacy"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="wearable" 
-                  stroke="#E74C3C" 
+                  stroke="#EF4444" 
                   strokeWidth={2}
                   name="Wearable"
                 />
@@ -162,60 +219,33 @@ const EventDetail: React.FC = () => {
           </div>
 
           {/* Signal Breakdown */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-semibold text-textPrimary mb-6">Current Signal Strength</h3>
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
+            <h3 className="text-xl font-semibold text-text-primary mb-6">Current Signal Strength</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={signalBreakdown}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="signal" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="value" fill="#00BFA6" />
+                <Bar dataKey="value" fill="#00C7B7" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Signal Types */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h3 className="text-xl font-semibold text-textPrimary mb-6">Active Signal Sources</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {event.signalTypes.map((signalType) => {
-              const value = event.signals[signalType];
-              return (
-                <div key={signalType} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <SignalBadge type={signalType} />
-                  {value !== undefined && (
-                    <div className="text-right">
-                      <div className="text-lg font-semibold text-textPrimary">
-                        {value}%
-                      </div>
-                      <div className="text-sm text-textSecondary">
-                        Signal strength
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Recommendations */}
         {event.recommendation && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-card border border-border p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <CheckCircle className="w-6 h-6 text-green-500" />
-              <h3 className="text-xl font-semibold text-textPrimary">AI Recommendations</h3>
+              <CheckCircle className="w-6 h-6 text-success" />
+              <h3 className="text-xl font-semibold text-text-primary">AI Recommendations</h3>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-textPrimary">{event.recommendation}</p>
+            <div className="bg-success bg-opacity-10 border border-success border-opacity-20 rounded-lg p-4">
+              <p className="text-text-primary">{event.recommendation}</p>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default EventDetail;
+}

@@ -5,59 +5,57 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Clinical color palette
-        primary: '#003366',
-        accent: '#00BFA6',
-        alert: '#FF4D4F',
-        warning: '#FF8C00',
-        success: '#52C41A',
-        background: '#F4F6F9',
-        'background-dark': '#0F1419',
-        'card-dark': '#1A1F2E',
-        textPrimary: '#1E1E1E',
-        'textPrimary-dark': '#FFFFFF',
-        textSecondary: '#6E6E6E',
-        'textSecondary-dark': '#A0A0A0',
-        border: '#E5E7EB',
-        'border-dark': '#2D3748',
+        // PanPath Guardian Brand Colors
+        primary: '#00C7B7',
+        'primary-dark': '#005F73',
+        background: '#F8FAFC',
+        card: '#FFFFFF',
+        'text-primary': '#0F172A',
+        'text-secondary': '#475569',
         
-        // Risk levels
-        riskLow: '#52C41A',
-        riskMedium: '#FF8C00',
-        riskHigh: '#FF4D4F',
+        // Alert Colors
+        error: '#EF4444',
+        warning: '#F59E0B',
+        success: '#10B981',
         
-        // Medical grade colors
-        medical: {
-          navy: '#003366',
-          teal: '#00BFA6',
-          mint: '#E6FFFA',
-          gray: '#F4F6F9',
-          'dark-navy': '#001A33',
-          'dark-teal': '#008B7A',
-        }
+        // Additional UI Colors
+        border: '#E2E8F0',
+        'border-dark': '#334155',
+        muted: '#64748B',
+        accent: '#00C7B7',
       },
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
       },
       fontSize: {
-        'clinical-xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.05em' }],
-        'clinical-sm': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.025em' }],
-        'clinical-base': ['1rem', { lineHeight: '1.5rem' }],
-        'clinical-lg': ['1.125rem', { lineHeight: '1.75rem', fontWeight: '600' }],
-        'clinical-xl': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600' }],
+        'h1': ['48px', { lineHeight: '1.1', fontWeight: '700' }],
+        'h2': ['36px', { lineHeight: '1.2', fontWeight: '700' }],
+        'h3': ['24px', { lineHeight: '1.3', fontWeight: '700' }],
+        'body': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+        'button': ['14px', { lineHeight: '1', fontWeight: '600', letterSpacing: '1px' }],
       },
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        'base': '16px',
+        'gutter': '24px',
+      },
+      maxWidth: {
+        'container': '1280px',
+      },
+      borderRadius: {
+        'default': '8px',
       },
       animation: {
+        'bounce-subtle': 'bounceSubtle 2s ease-in-out infinite',
         'pulse-ring': 'pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-in': 'fadeIn 0.3s ease-out',
-        'slide-in': 'slideIn 0.3s ease-out',
-        'bounce-subtle': 'bounceSubtle 2s ease-in-out infinite',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'data-flow': 'dataFlow 20s linear infinite',
       },
       keyframes: {
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
         pulseRing: {
           '0%': { transform: 'scale(0.8)', opacity: '1' },
           '100%': { transform: 'scale(2)', opacity: '0' },
@@ -66,19 +64,18 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        slideIn: {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(0)' },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        bounceSubtle: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-2px)' },
+        dataFlow: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100vw)' },
         },
       },
       boxShadow: {
-        'clinical': '0 2px 8px rgba(0, 0, 0, 0.06)',
-        'clinical-lg': '0 4px 16px rgba(0, 0, 0, 0.08)',
-        'clinical-xl': '0 8px 32px rgba(0, 0, 0, 0.12)',
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
       },
     },
   },
