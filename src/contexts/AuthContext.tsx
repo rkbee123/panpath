@@ -99,10 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { data, error };
     } else {
-      // Regular user signup with OTP
+      // Regular user signup with OTP - force OTP instead of magic link
       return await supabase.auth.signInWithOtp({
         email,
         options: {
+          shouldCreateUser: true,
           data: {
             role: 'user'
           }
@@ -119,9 +120,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password
       });
     } else {
-      // User login with OTP
+      // User login with OTP - force OTP instead of magic link
       return await supabase.auth.signInWithOtp({
-        email
+        email,
+        options: {
+          shouldCreateUser: false
+        }
       });
     }
   };

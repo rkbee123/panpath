@@ -3,7 +3,7 @@ import { Search, Globe, Activity, TrendingUp, AlertTriangle, Droplets, Pill, Hea
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { ApiService, mockData } from '../lib/api';
-import InteractiveMap from '../components/InteractiveMap';
+import LeafletMap from '../components/Dashboard/LeafletMap';
 import EventCard from '../components/EventCard';
 import SignalFilter from '../components/SignalFilter';
 
@@ -159,7 +159,7 @@ export default function UserDashboard() {
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Map Section */}
+        {/* Map Section - Updated to use Leaflet */}
         <div className="lg:col-span-2">
           <div className="bg-card rounded-lg shadow-card border border-border p-6">
             <div className="flex items-center justify-between mb-6">
@@ -171,7 +171,9 @@ export default function UserDashboard() {
                 <span className="text-sm text-text-secondary">Live</span>
               </div>
             </div>
-            <InteractiveMap />
+            <div className="h-96 rounded-lg overflow-hidden">
+              <LeafletMap activeFilters={activeFilters.map(f => f as any)} className="w-full h-full" />
+            </div>
           </div>
         </div>
 

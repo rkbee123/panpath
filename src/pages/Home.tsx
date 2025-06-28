@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Play, Users, Droplets, Pill, Heart, Mic, MessageSquare, Activity, ArrowRight, Globe, Zap, Eye, TrendingUp, ChevronRight } from 'lucide-react';
+import { Shield, Play, Users, Droplets, Pill, Heart, Mic, MessageSquare, Activity, ArrowRight, Globe, Zap, Eye, TrendingUp, ChevronRight, Stethoscope } from 'lucide-react';
 import SignupModal from '../components/SignupModal';
-import InteractiveMap from '../components/InteractiveMap';
+import LeafletMap from '../components/Dashboard/LeafletMap';
 
 export default function Home() {
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -239,7 +239,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why We Do It */}
+      {/* Why We Do It - Updated with Doctor Image */}
       <section className="py-24 bg-card">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -248,7 +248,7 @@ export default function Home() {
                 Why We Do It
               </h2>
               <p className="text-xl text-text-secondary leading-relaxed">
-                We're a global student-powered team on a mission to protect humanity—detecting threats before they strike. 
+                We're a global team of healthcare professionals and researchers on a mission to protect humanity—detecting threats before they strike. 
                 Join us to build the world's first planetary pathogen radar.
               </p>
               <p className="text-text-secondary leading-relaxed">
@@ -264,23 +264,39 @@ export default function Home() {
               </button>
             </div>
             <div className="relative">
-              <div className="bg-gradient-to-br from-primary to-primary-dark rounded-lg p-8 text-white">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">89</div>
-                    <div className="text-sm opacity-90">Countries Protected</div>
+              {/* Doctor Image Placeholder */}
+              <div className="bg-gradient-to-br from-primary to-primary-dark rounded-lg p-8 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary-dark/90"></div>
+                <div className="relative z-10">
+                  {/* Doctor Icon as placeholder */}
+                  <div className="flex items-center justify-center mb-6">
+                    <div className="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                      <Stethoscope className="w-16 h-16 text-white" />
+                    </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">156K</div>
-                    <div className="text-sm opacity-90">Live Signals</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">2,847</div>
-                    <div className="text-sm opacity-90">Active Monitors</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">24/7</div>
-                    <div className="text-sm opacity-90">Global Coverage</div>
+                    <h3 className="text-2xl font-bold mb-4">Healthcare Professionals</h3>
+                    <p className="text-lg opacity-90 mb-6">
+                      Working together to prevent the next pandemic
+                    </p>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold mb-2">89</div>
+                        <div className="text-sm opacity-90">Countries Protected</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold mb-2">156K</div>
+                        <div className="text-sm opacity-90">Live Signals</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold mb-2">2,847</div>
+                        <div className="text-sm opacity-90">Active Monitors</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold mb-2">24/7</div>
+                        <div className="text-sm opacity-90">Global Coverage</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -289,7 +305,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Live Feed & News */}
+      {/* Live Feed & News - Updated with Leaflet Map */}
       <section id="live-feed" className="py-24 bg-background">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -302,7 +318,7 @@ export default function Home() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Map */}
+            {/* Map - Updated to use Leaflet */}
             <div className="lg:col-span-2">
               <div className="bg-card rounded-lg p-6 shadow-card">
                 <div className="flex items-center justify-between mb-6">
@@ -312,7 +328,9 @@ export default function Home() {
                     <span className="text-sm text-text-secondary">Live</span>
                   </div>
                 </div>
-                <InteractiveMap />
+                <div className="h-96 rounded-lg overflow-hidden">
+                  <LeafletMap activeFilters={[]} className="w-full h-full" />
+                </div>
               </div>
             </div>
 
