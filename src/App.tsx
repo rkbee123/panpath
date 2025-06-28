@@ -7,7 +7,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Survey from './pages/Survey';
 import UserDashboard from './pages/UserDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import Admin from './pages/Admin';
 import EventDetail from './pages/EventDetail';
 import Alerts from './pages/Alerts';
 import Profile from './pages/Profile';
@@ -40,7 +40,7 @@ function App() {
               <Route path="/admin" element={
                 <ProtectedRoute adminOnly>
                   <Layout>
-                    <AdminDashboard />
+                    <Admin />
                   </Layout>
                 </ProtectedRoute>
               } />
