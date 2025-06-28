@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Globe, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
 import { SignalType } from '../types';
 import { mockEvents, mockAlerts } from '../data/mockData';
-import LeafletMap from '../components/Dashboard/LeafletMap';
+import InteractiveMap from '../components/Dashboard/InteractiveMap';
 import SignalFilters from '../components/Dashboard/SignalFilters';
 import EventFeed from '../components/Dashboard/EventFeed';
 
@@ -100,16 +100,14 @@ const Dashboard: React.FC = () => {
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Interactive Map - Updated to use Leaflet */}
+          {/* Interactive Map */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
               <div className="flex items-center space-x-3 mb-6">
                 <Globe className="w-6 h-6 text-accent" />
                 <h2 className="text-2xl font-bold text-textPrimary">Live Anomaly Heatmap</h2>
               </div>
-              <div className="h-96 rounded-lg overflow-hidden">
-                <LeafletMap activeFilters={activeFilters} className="w-full h-full" />
-              </div>
+              <InteractiveMap activeFilters={activeFilters} />
             </div>
           </div>
 

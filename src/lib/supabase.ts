@@ -3,15 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    // Configure auth to prefer OTP over magic links
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false, // Disable magic link detection
-    flowType: 'pkce'
-  }
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Database types
 export interface UserProfile {
