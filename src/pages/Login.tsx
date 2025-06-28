@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { Shield, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Shield, Mail, Lock, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 
@@ -11,6 +11,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
+  const [resendingOtp, setResendingOtp] = useState(false);
   
   const { user, signIn, verifyOTP } = useAuth();
   const { addNotification } = useNotifications();
@@ -18,6 +19,35 @@ export default function Login() {
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  const handleResendOtp = async () => {
+    setResendingOtp(true);
+    try {
+      const { error } = await signIn(email);
+      if (error) {
+        addNotification({
+          type: 'error',
+          title: 'Failed to Resend Code',
+          message: error.message,
+        });
+      } else {
+        addNotification({
+          type: 'success',
+          title: 'Code Sent',
+          message: 'A new verification code has been sent to your email.',
+        });
+        setOtp(''); // Clear the old OTP
+      }
+    } catch (error) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to resend verification code.',
+      });
+    } finally {
+      setResendingOtp(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +58,20 @@ export default function Login() {
         // Verify OTP for users
         const { error } = await verifyOTP(email, otp);
         if (error) {
-          addNotification({
-            type: 'error',
-            title: 'Verification Failed',
-            message: error.message,
-          });
+          // Handle specific OTP errors
+          if (error.message.includes('expired') || error.message.includes('invalid')) {
+            addNotification({
+              type: 'error',
+              title: 'Verification Code Expired',
+              message: 'Your verification code has expired or is invalid. Please request a new one.',
+            });
+          } else {
+            addNotification({
+              type: 'error',
+              title: 'Verification Failed',
+              message: error.message,
+            });
+          }
         } else {
           addNotification({
             type: 'success',
@@ -44,11 +83,20 @@ export default function Login() {
         // Sign in
         const { error } = await signIn(email, isAdmin ? password : undefined);
         if (error) {
-          addNotification({
-            type: 'error',
-            title: 'Login Failed',
-            message: error.message,
-          });
+          // Handle specific login errors
+          if (error.message.includes('Invalid login credentials')) {
+            addNotification({
+              type: 'error',
+              title: 'Invalid Credentials',
+              message: 'Please double-check your email and password. If you\'re an admin and forgot your password, use the "Forgot password?" link below.',
+            });
+          } else {
+            addNotification({
+              type: 'error',
+              title: 'Login Failed',
+              message: error.message,
+            });
+          }
         } else if (!isAdmin) {
           setOtpSent(true);
           addNotification({
@@ -177,9 +225,20 @@ export default function Login() {
                   maxLength={6}
                   required
                 />
-                <p className="text-sm text-text-secondary mt-2">
-                  Check your email for the 6-digit code
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-sm text-text-secondary">
+                    Check your email for the 6-digit code
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendingOtp}
+                    className="text-sm text-primary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${resendingOtp ? 'animate-spin' : ''}`} />
+                    <span>{resendingOtp ? 'Sending...' : 'Resend Code'}</span>
+                  </button>
+                </div>
               </div>
             )}
 

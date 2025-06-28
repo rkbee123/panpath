@@ -25,11 +25,20 @@ export default function Signup() {
       const { error } = await signUp(email, userType === 'admin' ? password : undefined, userType === 'admin');
       
       if (error) {
-        addNotification({
-          type: 'error',
-          title: 'Signup Failed',
-          message: error.message,
-        });
+        // Handle specific signup errors
+        if (error.message.includes('User already registered') || error.message.includes('user_already_exists')) {
+          addNotification({
+            type: 'error',
+            title: 'Account Already Exists',
+            message: 'An account with this email already exists. Please sign in instead or use a different email address.',
+          });
+        } else {
+          addNotification({
+            type: 'error',
+            title: 'Signup Failed',
+            message: error.message,
+          });
+        }
       } else {
         addNotification({
           type: 'success',
