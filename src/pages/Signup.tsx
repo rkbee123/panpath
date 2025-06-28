@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { Shield, Mail, Lock, ArrowLeft, User } from 'lucide-react';
+import { Shield, Mail, Lock, ArrowLeft, User, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 
@@ -32,6 +32,12 @@ export default function Signup() {
             title: 'Account Already Exists',
             message: 'An account with this email already exists. Please sign in instead or use a different email address.',
           });
+        } else if (error.message.includes('Password should be at least')) {
+          addNotification({
+            type: 'error',
+            title: 'Password Too Short',
+            message: 'Password must be at least 6 characters long.',
+          });
         } else {
           addNotification({
             type: 'error',
@@ -45,8 +51,15 @@ export default function Signup() {
           title: 'Success!',
           message: userType === 'admin' 
             ? 'Admin account created. Please check your email to verify.'
-            : 'Check your email for the verification link.',
+            : 'Check your email for a 6-digit verification code to complete signup.',
         });
+        
+        // For users, redirect to login to enter OTP
+        if (userType === 'user') {
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        }
       }
     } catch (error) {
       addNotification({
@@ -111,6 +124,21 @@ export default function Signup() {
             </button>
           </div>
 
+          {/* OTP Info Banner for Users */}
+          {userType === 'user' && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-semibold text-green-800">Simple Email Verification</h3>
+                  <p className="text-sm text-green-700 mt-1">
+                    After signup, you'll receive a 6-digit code via email. No passwords needed for regular users!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
@@ -167,7 +195,7 @@ export default function Signup() {
           <div className="mt-6 text-center">
             <p className="text-sm text-text-secondary mb-4">
               {userType === 'user' 
-                ? 'You\'ll receive an email with a verification link'
+                ? 'You\'ll receive a 6-digit verification code via email'
                 : 'Admin accounts require email verification'
               }
             </p>

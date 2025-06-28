@@ -5,11 +5,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Force OTP instead of magic links
-    flowType: 'pkce',
+    // Configure auth to prefer OTP over magic links
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: false, // Disable magic link detection
+    flowType: 'pkce'
   }
 });
 

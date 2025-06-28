@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { Shield, Mail, Lock, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Shield, Mail, Lock, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 
@@ -33,8 +33,8 @@ export default function Login() {
       } else {
         addNotification({
           type: 'success',
-          title: 'Code Sent',
-          message: 'A new verification code has been sent to your email.',
+          title: 'New Code Sent',
+          message: 'A new 6-digit verification code has been sent to your email.',
         });
         setOtp(''); // Clear the old OTP
       }
@@ -62,8 +62,8 @@ export default function Login() {
           if (error.message.includes('expired') || error.message.includes('invalid')) {
             addNotification({
               type: 'error',
-              title: 'Verification Code Expired',
-              message: 'Your verification code has expired or is invalid. Please request a new one.',
+              title: 'Invalid or Expired Code',
+              message: 'Your verification code has expired or is incorrect. Please request a new one.',
             });
           } else {
             addNotification({
@@ -88,7 +88,15 @@ export default function Login() {
             addNotification({
               type: 'error',
               title: 'Invalid Credentials',
-              message: 'Please double-check your email and password. If you\'re an admin and forgot your password, use the "Forgot password?" link below.',
+              message: isAdmin 
+                ? 'Please double-check your email and password.' 
+                : 'Please check your email address.',
+            });
+          } else if (error.message.includes('Email not confirmed')) {
+            addNotification({
+              type: 'error',
+              title: 'Email Not Verified',
+              message: 'Please verify your email address before signing in.',
             });
           } else {
             addNotification({
@@ -102,7 +110,7 @@ export default function Login() {
           addNotification({
             type: 'success',
             title: 'Check Your Email',
-            message: 'We sent you a verification code.',
+            message: 'We sent a 6-digit verification code to your email address.',
           });
         } else {
           addNotification({
@@ -151,18 +159,26 @@ export default function Login() {
           <div className="flex bg-background rounded-lg p-1 mb-6">
             <button
               type="button"
-              onClick={() => setIsAdmin(false)}
+              onClick={() => {
+                setIsAdmin(false);
+                setOtpSent(false);
+                setOtp('');
+              }}
               className={`flex-1 py-2 px-4 rounded-md transition-all text-sm font-medium ${
                 !isAdmin 
                   ? 'bg-card text-primary shadow-sm' 
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
-              User Login
+              User Login (OTP)
             </button>
             <button
               type="button"
-              onClick={() => setIsAdmin(true)}
+              onClick={() => {
+                setIsAdmin(true);
+                setOtpSent(false);
+                setOtp('');
+              }}
               className={`flex-1 py-2 px-4 rounded-md transition-all text-sm font-medium ${
                 isAdmin 
                   ? 'bg-card text-primary shadow-sm' 
@@ -172,6 +188,21 @@ export default function Login() {
               Admin Login
             </button>
           </div>
+
+          {/* OTP Info Banner for Users */}
+          {!isAdmin && !otpSent && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-semibold text-blue-800">Email Verification Required</h3>
+                  <p className="text-sm text-blue-700 mt-1">
+                    We'll send a 6-digit verification code to your email address. No magic links - just a simple code to enter.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
@@ -214,13 +245,13 @@ export default function Login() {
             ) : otpSent && (
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
-                  Verification Code
+                  6-Digit Verification Code
                 </label>
                 <input
                   type="text"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center text-lg tracking-widest"
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center text-lg tracking-widest font-mono"
                   placeholder="000000"
                   maxLength={6}
                   required
@@ -244,7 +275,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (otpSent && otp.length !== 6)}
               className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 
